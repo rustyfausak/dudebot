@@ -69,8 +69,8 @@ function bot_command(message)
 var memes = {
   'quote': {
     cooldown: null,
-    min_cooldown: 60,
-    max_cooldown: 1200,
+    min_cooldown: 600,
+    max_cooldown: 3000,
     last: null,
     callback: function (message) {
       var parts = message.content.split(/\s+/);
@@ -83,8 +83,8 @@ var memes = {
   },
   'uclast': {
     cooldown: null,
-    min_cooldown: 60,
-    max_cooldown: 1200,
+    min_cooldown: 600,
+    max_cooldown: 3000,
     last: null,
     callback: function (message) {
       var parts = message.content.split(/\s+/);

@@ -12,7 +12,12 @@ fs = require('fs');
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
+const token_file = 'token.txt';
+if (!fs.existsSync(token_file)) {
+  console.log("Please create file '" + token_file + "' and populate it with your bot token. See https://discordapp.com/developers/applications/me");
+}
 // The token of your bot - https://discordapp.com/developers/applications/me
+const token = fs.readFileSync(token_file, 'utf8').trim();
 
 function log(str) {
   console.log(date_time_str() + "\t" + str);

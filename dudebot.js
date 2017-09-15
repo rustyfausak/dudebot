@@ -120,9 +120,11 @@ function bot_meme(message)
         log("Meme: " + key);
         meme.last = now;
         meme.cooldown = rand_int(meme.min_cooldown, meme.max_cooldown);
+        return true;
       }
     }
   }
+  return false;
 }
 
 function rand_int(min, max) {

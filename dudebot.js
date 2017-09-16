@@ -66,43 +66,63 @@ function bot_command(message)
   return false;
 }
 
-var memes = {
-  'quote': {
-    cooldown: null,
-    min_cooldown: 600,
-    max_cooldown: 3000,
-    last: null,
-    callback: function (message) {
-      var parts = message.content.split(/\s+/);
-      if (parts.length < 3) {
-        return false;
-      }
-      message.channel.send('"' + rand_elem(parts) + '"');
-      return true;
-    }
-  },
-  'uclast': {
-    cooldown: null,
-    min_cooldown: 600,
-    max_cooldown: 3000,
-    last: null,
-    callback: function (message) {
-      var parts = message.content.split(/\s+/);
-      if (!parts.length) {
-        return false;
-      }
-      message.channel.send(uclast(rand_elem(parts).toLowerCase()));
-      return true;
-    }
+class Meme
+{
+  constructor(callback, min_cooldown = 600, max_cooldown = 3000)
+  {
+    this.callback = callback;
+    this.min_cooldown = min_cooldown;
+    this.max_cooldown = max_cooldown;
+    this.last = null;
+    this.cooldown = null;
+    this.touch();
   }
-};
 
-// Set random meme cooldowns within bounds
-for (var key in memes) {
-  var meme = memes[key];
-  meme.cooldown = rand_int(meme.min_cooldown, meme.max_cooldown);
-  meme.last = ts();
+  ready()
+  {
+    if (!this.cooldown) {
+      return false;
+    }
+    var now = ts();
+    if (this.last === null || now - this.last > this.cooldown) {
+      return true;
+    }
+    return false;
+  }
+
+  touch()
+  {
+    var now = ts();
+    this.last = now;
+    this.cooldown = rand_int(this.min_cooldown, this.max_cooldown);
+  }
 }
+
+var memes = {
+  'quote': new Meme(function (message) {
+    var parts = message.content.split(/\s+/);
+    if (parts.length < 3) {
+      return false;
+    }
+    send_delay(message.channel, '"' + rand_elem(parts) + '"')
+    return true;
+  }),
+  'uclast': new Meme(function (message) {
+    var parts = message.content.split(/\s+/);
+    if (!parts.length) {
+      return false;
+    }
+    send_delay(message.channel, uclast(rand_elem(parts).toLowerCase()));
+    return true;
+  }),
+  'sss': new Meme(function (message) {
+    if (message.content.match(/^ssss+$/)) {
+      send_delay(message.channel, message.content + 's');
+      return true;
+    }
+    return false;
+  })
+};
 
 function bot_meme(message)
 {
@@ -112,19 +132,22 @@ function bot_meme(message)
   var now = ts();
   for (var key in memes) {
     var meme = memes[key];
-    if (!meme.cooldown) {
-      continue;
-    }
-    if (meme.last === null || now - meme.last > meme.cooldown) {
+    if (meme.ready()) {
       if (meme.callback(message)) {
         log("Meme: " + key);
-        meme.last = now;
-        meme.cooldown = rand_int(meme.min_cooldown, meme.max_cooldown);
+        meme.touch();
         return true;
       }
     }
   }
   return false;
+}
+
+function send_delay(channel, str, min = 3000, max = 20000)
+{
+  setTimeout(function () {
+    channel.send(str);
+  }, rand_int(min, max));
 }
 
 function rand_int(min, max) {

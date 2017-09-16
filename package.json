@@ -1,0 +1,22 @@
+{
+  "name": "dudebot",
+  "version": "1.0.0",
+  "description": "A Discord bot for #dudechat.",
+  "main": "dudebot.js",
+  "dependencies": {
+    "discord.js": "^11.2.1",
+    "got": "^7.1.0",
+    "mysql": "^2.14.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rustyfausak/dudebot.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rustyfausak/dudebot/issues"
+  },
+  "homepage": "https://github.com/rustyfausak/dudebot#readme"
+}

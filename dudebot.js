@@ -1,16 +1,35 @@
 const Discord = require('discord.js');
 const got = require('got');
 const fs = require('fs');
+var mysql = require('mysql');
+
+// Config file
+const config_file = 'config.json';
+if (!fs.existsSync(config_file)) {
+  console.log("Please create file '" + config_file + "' and populate it with your configuration.");
+  process.exit();
+}
+var config = JSON.parse(fs.readFileSync(config_file, 'utf8'));
+
+// The token of your bot - https://discordapp.com/developers/applications/me
+const token = config.discord_bot_token;
+
+// Establish database connection
+var connection = mysql.createConnection({
+  host     : config.db_host,
+  user     : config.db_username,
+  password : config.db_password,
+  database : config.db_database
+});
+connection.connect(function(err) {
+  if (err) {
+    console.log("Error connecting to database.");
+    process.exit();
+  }
+});
 
 // Create an instance of a Discord client
 const client = new Discord.Client();
-
-// The token of your bot - https://discordapp.com/developers/applications/me
-const token_file = 'token.txt';
-if (!fs.existsSync(token_file)) {
-  console.log("Please create file '" + token_file + "' and populate it with your bot token. See https://discordapp.com/developers/applications/me");
-}
-const token = fs.readFileSync(token_file, 'utf8').trim();
 
 // The ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted

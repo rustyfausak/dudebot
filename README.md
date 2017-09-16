@@ -1,5 +1,11 @@
 # dudebot
 discord bot for dudechat
 
-# bot token
-Create file `token.txt` in the root directory. Populate with bot token from https://discordapp.com/developers/applications/me/.
+## install
+`npm install`
+
+## configure
+Copy `config.example.json` into `config.json` and edit it.
+
+### bot token
+See https://discordapp.com/developers/applications/me/

@@ -1,6 +1,9 @@
 # dudebot
 discord bot for dudechat
 
+## requirements
+ - node >= v8.5.0
+
 ## install
 `npm install`
 

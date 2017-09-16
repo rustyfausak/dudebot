@@ -39,6 +39,7 @@ client.on('ready', () => {
 
 // Create an event listener for messages
 client.on('message', message => {
+  store_message(message);
   log(box_str_l(channel_name(message.channel)) + "\t" + box_str_l(message.author.username) + "\t" + message.content);
   if (is_mine(message)) return;
   if (bot_command(message)) return;
@@ -143,9 +144,13 @@ var memes = {
   })
 };
 
-function bot_meme(message)
+async function bot_meme(message)
 {
   if (channel_name(message.channel) != 'dudechat') {
+    return false;
+  }
+  var active = await is_channel_active(message.channel);
+  if (!active) {
     return false;
   }
   var now = ts();
@@ -259,4 +264,70 @@ function channel_name(channel)
     default:
       return channel.id;
   }
+}
+
+// db
+
+function query(sql)
+{
+  return new Promise((resolve, reject) => {
+    connection.query(sql, function (error, results) {
+      if (error) reject(error);
+      resolve(results);
+    });
+  })
+}
+
+async function store_message(message)
+{
+  var channel_id = await save_channel(message.channel);
+  var user_id = await save_user(message.author);
+  save_message(message, channel_id, user_id);
+}
+
+async function save_message(message, channel_id, user_id)
+{
+  await query("INSERT IGNORE INTO `messages` SET `uuid` = " + connection.escape(message.id));
+  await query("UPDATE `messages` SET "
+    + "`channel_id` = " + connection.escape(channel_id) + ", "
+    + "`user_id` = " + connection.escape(user_id) + ", "
+    + "`content` = " + connection.escape(message.content) + " "
+    + "WHERE `uuid` = " + connection.escape(message.id));
+  var results = await query("SELECT * FROM `messages` WHERE `uuid` = " + connection.escape(message.id));
+  return results[0].id;
+}
+
+async function save_channel(channel)
+{
+  await query("INSERT IGNORE INTO `channels` SET `uuid` = " + connection.escape(channel.id));
+  await query("UPDATE `channels` SET "
+    + "`type` = " + connection.escape(channel.type) + ", "
+    + "`name` = " + (channel.type == 'text' ? connection.escape(channel.name) : 'NULL') + " "
+    + "WHERE `uuid` = " + connection.escape(channel.id));
+  var results = await query("SELECT * FROM `channels` WHERE `uuid` = " + connection.escape(channel.id));
+  return results[0].id;
+}
+
+async function save_user(user)
+{
+  await query("INSERT IGNORE INTO `users` SET `uuid` = " + connection.escape(user.id));
+  await query("UPDATE `users` SET "
+    + "`username` = " + connection.escape(user.username) + " "
+    + "WHERE `uuid` = " + connection.escape(user.id));
+  var results = await query("SELECT * FROM `users` WHERE `uuid` = " + connection.escape(user.id));
+  return results[0].id;
+}
+
+async function is_channel_active(channel, num_messages = 10, num_seconds = 120)
+{
+  var results = await query("SELECT `id` FROM `channels` WHERE `uuid` = " + connection.escape(channel.id));
+  var channel_id = results[0].id;
+  var sql = "SELECT COUNT(*) AS `num` FROM `messages` "
+    + "WHERE `channel_id` = " + connection.escape(channel_id) + " "
+    + "AND `at` > (NOW() - INTERVAL " + num_seconds + " SECOND)";
+  var results = await query(sql);
+  if (results[0].num >= num_messages) {
+    return true;
+  }
+  return false;
 }

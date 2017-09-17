@@ -115,12 +115,13 @@ class Meme
     var now = ts();
     this.last = now;
     this.cooldown = rand_int(this.min_cooldown, this.max_cooldown);
+    this.last = null;
   }
 }
 
 var memes = {
   'quote': new Meme(function (message) {
-    var parts = message.content.split(/\s+/);
+    var parts = remove_short(message.content.split(/\s+/));
     if (parts.length < 3) {
       return false;
     }
@@ -128,7 +129,7 @@ var memes = {
     return true;
   }),
   'uclast': new Meme(function (message) {
-    var parts = message.content.split(/\s+/);
+    var parts = remove_short(message.content.split(/\s+/));
     if (!parts.length) {
       return false;
     }
@@ -143,6 +144,21 @@ var memes = {
     return false;
   })
 };
+
+function remove_short(arr)
+{
+  var newarr = [];
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].length < 3) {
+      continue;
+    }
+    if (['the', 'and', 'but', 'nor', 'for', 'than', 'then', 'have', 'had', 'that', 'who', 'what', 'when', 'where', 'why', 'how'].includes(arr[i])) {
+      continue;
+    }
+    newarr.push(arr[i]);
+  }
+  return newarr;
+}
 
 async function bot_meme(message)
 {
@@ -318,7 +334,7 @@ async function save_user(user)
   return results[0].id;
 }
 
-async function is_channel_active(channel, num_messages = 10, num_seconds = 120)
+async function is_channel_active(channel, num_messages = 5, num_seconds = 240)
 {
   var results = await query("SELECT `id` FROM `channels` WHERE `uuid` = " + connection.escape(channel.id));
   var channel_id = results[0].id;

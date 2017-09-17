@@ -72,6 +72,27 @@ var commands = {
       .catch(error => {
         log("Command failed. " + error.response.body);
       });
+  },
+  '!stats': async function (message) {
+    var channel_id = await get_channel(message.channel);
+    var sql = "SELECT u.`username`, COUNT(*) AS `num`, m.`content` "
+      + " FROM `messages` m "
+      + " LEFT JOIN `users` u ON m.`user_id` = u.`id` "
+      + " WHERE m.`channel_id` = " + connection.escape(channel_id)
+      + " AND m.`at` > (NOW() - INTERVAL 1 DAY) "
+      + " GROUP BY m.`user_id` "
+      + " ORDER BY `num` DESC ";
+    var results = await query(sql);
+    var str = '';
+    str += "Stats for last 1 day:\n";
+    str += "```\n";
+    str += trim_pad_r('username', 20) + "\t" + trim_pad_r('# msgs', 6) + "\t" + 'example' + "\n";
+    str += trim_pad_r('--------', 20) + "\t" + trim_pad_r('------', 6) + "\t" + '-------' + "\n";
+    for (var i = 0; i < results.length; i++) {
+      str += trim_pad_r(results[i].username, 20) + "\t" + trim_pad_r(results[i].num, 6) + "\t" + results[i].content + "\n";
+    }
+    str += "```";
+    message.channel.send(str);
   }
 };
 
@@ -115,7 +136,6 @@ class Meme
     var now = ts();
     this.last = now;
     this.cooldown = rand_int(this.min_cooldown, this.max_cooldown);
-    this.last = null;
   }
 }
 
@@ -183,7 +203,7 @@ async function bot_meme(message)
   return false;
 }
 
-function send_delay(channel, str, min = 3000, max = 20000)
+function send_delay(channel, str, min = 1000, max = 5000)
 {
   setTimeout(function () {
     channel.send(str);
@@ -228,21 +248,25 @@ function date_time_str()
 
 function box_str_l(str, size = 10)
 {
+  str = String(str);
   return '[' + trim_pad_l(str, size) + ']'
 }
 
 function box_str_r(str, size = 10)
 {
+  str = String(str);
   return '[' + trim_pad_r(str, size) + ']'
 }
 
 function trim_pad_l(str, size = 10)
 {
+  str = String(str);
   return str.substr(0, size) + ' '.repeat(Math.max(0, size - str.length));
 }
 
 function trim_pad_r(str, size = 10)
 {
+  str = String(str);
   return ' '.repeat(Math.max(0, size - str.length)) + str.substr(0, size);
 }
 
@@ -321,6 +345,12 @@ async function save_channel(channel)
     + "`name` = " + (channel.type == 'text' ? connection.escape(channel.name) : 'NULL') + " "
     + "WHERE `uuid` = " + connection.escape(channel.id));
   var results = await query("SELECT * FROM `channels` WHERE `uuid` = " + connection.escape(channel.id));
+  return results[0].id;
+}
+
+async function get_channel(channel)
+{
+  var results = await query("SELECT `id` FROM `channels` WHERE `uuid` = " + connection.escape(channel.id));
   return results[0].id;
 }
 

@@ -109,7 +109,7 @@ function bot_command(message)
 
 class Meme
 {
-  constructor(callback, min_cooldown = 600, max_cooldown = 3000)
+  constructor(callback, min_cooldown = 600, max_cooldown = 1800)
   {
     this.callback = callback;
     this.min_cooldown = min_cooldown;
@@ -137,6 +137,11 @@ class Meme
     this.last = now;
     this.cooldown = rand_int(this.min_cooldown, this.max_cooldown);
   }
+
+  bump()
+  {
+    this.cooldown += rand_int(Math.round(this.min_cooldown / 4), this.min_cooldown);
+  }
 }
 
 var memes = {
@@ -162,6 +167,13 @@ var memes = {
       return true;
     }
     return false;
+  }),
+  'question': new Meme(function (message) {
+    if (message.content.match(/\?$/)) {
+      send_delay(message.channel, '...?');
+      return true;
+    }
+    return false;
   })
 };
 
@@ -172,7 +184,10 @@ function remove_short(arr)
     if (arr[i].length < 3) {
       continue;
     }
-    if (['the', 'and', 'but', 'nor', 'for', 'than', 'then', 'have', 'had', 'that', 'who', 'what', 'when', 'where', 'why', 'how'].includes(arr[i])) {
+    if (['the', 'and', 'but', 'nor', 'for',
+      'than', 'then', 'have', 'had', 'that',
+      'who', 'what', 'when', 'where', 'why',
+      'with', 'how'].includes(arr[i])) {
       continue;
     }
     newarr.push(arr[i]);
@@ -182,7 +197,9 @@ function remove_short(arr)
 
 async function bot_meme(message)
 {
+  var dev = false;
   if (channel_name(message.channel) != 'dudechat') {
+    var dev = true;
     return false;
   }
   var active = await is_channel_active(message.channel);
@@ -190,20 +207,27 @@ async function bot_meme(message)
     return false;
   }
   var now = ts();
+  var memed = false;
   for (var key in memes) {
     var meme = memes[key];
-    if (meme.ready()) {
+    if (dev || meme.ready()) {
       if (meme.callback(message)) {
         log("Meme: " + key);
         meme.touch();
-        return true;
+        memed = true;
+        break;
       }
     }
   }
-  return false;
+  if (memed) {
+    for (var key in memes) {
+      meme.bump();
+    }
+  }
+  return memed;
 }
 
-function send_delay(channel, str, min = 1000, max = 5000)
+function send_delay(channel, str, min = 1000, max = 3000)
 {
   setTimeout(function () {
     channel.send(str);

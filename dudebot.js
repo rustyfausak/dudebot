@@ -125,7 +125,7 @@ class Meme
       return false;
     }
     var now = ts();
-    if (this.last === null || (now - this.last) > this.cooldown)) {
+    if (this.last === null || (now - this.last) > this.cooldown) {
       return true;
     }
     return false;

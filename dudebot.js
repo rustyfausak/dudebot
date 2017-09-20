@@ -221,7 +221,7 @@ async function bot_meme(message)
   }
   if (memed) {
     for (var key in memes) {
-      meme.bump();
+      memes[key].bump();
     }
   }
   return memed;

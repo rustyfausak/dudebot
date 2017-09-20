@@ -140,7 +140,7 @@ class Meme
 
   bump()
   {
-    this.cooldown += rand_int(Math.round(this.min_cooldown / 4), this.min_cooldown);
+    this.cooldown += rand_int(Math.round(this.min_cooldown / 2), this.min_cooldown);
   }
 }
 

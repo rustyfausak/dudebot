@@ -109,7 +109,7 @@ function bot_command(message)
 
 class Meme
 {
-  constructor(callback, min_cooldown = 600, max_cooldown = 1800)
+  constructor(callback, min_cooldown = 300, max_cooldown = 1800)
   {
     this.callback = callback;
     this.min_cooldown = min_cooldown;
@@ -125,7 +125,7 @@ class Meme
       return false;
     }
     var now = ts();
-    if (this.last === null || now - this.last > this.cooldown) {
+    if (this.last === null || (now - this.last) > this.cooldown)) {
       return true;
     }
     return false;
@@ -136,11 +136,6 @@ class Meme
     var now = ts();
     this.last = now;
     this.cooldown = rand_int(this.min_cooldown, this.max_cooldown);
-  }
-
-  bump()
-  {
-    this.cooldown += rand_int(Math.round(this.min_cooldown / 2), this.min_cooldown);
   }
 }
 
@@ -187,7 +182,7 @@ function remove_short(arr)
     if (['the', 'and', 'but', 'nor', 'for',
       'than', 'then', 'have', 'had', 'that',
       'who', 'what', 'when', 'where', 'why',
-      'with', 'how'].includes(arr[i])) {
+      'with', 'how', 'can'].includes(arr[i])) {
       continue;
     }
     newarr.push(arr[i]);
@@ -197,9 +192,7 @@ function remove_short(arr)
 
 async function bot_meme(message)
 {
-  var dev = false;
   if (channel_name(message.channel) != 'dudechat') {
-    var dev = true;
     return false;
   }
   var active = await is_channel_active(message.channel);
@@ -210,10 +203,9 @@ async function bot_meme(message)
   var memed = false;
   for (var key in memes) {
     var meme = memes[key];
-    if (dev || meme.ready()) {
+    if (meme.ready()) {
       if (meme.callback(message)) {
         log("Meme: " + key);
-        meme.touch();
         memed = true;
         break;
       }
@@ -221,7 +213,7 @@ async function bot_meme(message)
   }
   if (memed) {
     for (var key in memes) {
-      memes[key].bump();
+      memes[key].touch();
     }
   }
   return memed;

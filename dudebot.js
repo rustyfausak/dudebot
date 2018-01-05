@@ -320,7 +320,7 @@ function rand_caps(str)
 }
 
 async function markov(str) {
-  const { stdout, stderr } = await exec('py test.py');
+  const { stdout, stderr } = await exec('python markov.py');
   return stdout;
 }
 

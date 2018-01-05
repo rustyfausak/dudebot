@@ -1,3 +1,5 @@
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 const Discord = require('discord.js');
 const got = require('got');
 const fs = require('fs');
@@ -56,6 +58,10 @@ var commands = {
   '!ping': function (message) {
     message.channel.send(rand_caps('pong'));
   },
+  '!markov': async function (message) {
+    var str = await markov();
+    message.channel.send(str);
+  },
   '!bitcoin': function (message) {
     var url = 'https://api.coinmarketcap.com/v1/ticker/bitcoin/';
     got(url)
@@ -109,9 +115,10 @@ function bot_command(message)
 
 class Meme
 {
-  constructor(callback, min_cooldown = 300, max_cooldown = 1800)
+  constructor(callback, enabled = true, min_cooldown = 300, max_cooldown = 1800)
   {
     this.callback = callback;
+    this.enabled = enabled;
     this.min_cooldown = min_cooldown;
     this.max_cooldown = max_cooldown;
     this.last = null;
@@ -121,6 +128,9 @@ class Meme
 
   ready()
   {
+    if (!this.enabled) {
+      return false;
+    }
     if (!this.cooldown) {
       return false;
     }
@@ -140,6 +150,11 @@ class Meme
 }
 
 var memes = {
+  'markov': new Meme(async function (message) {
+    var str = await markov();
+    send_delay(message.channel, str);
+    return true;
+  }, true),
   'quote': new Meme(function (message) {
     var parts = remove_short(message.content.split(/\s+/));
     if (parts.length < 3) {
@@ -147,7 +162,7 @@ var memes = {
     }
     send_delay(message.channel, '"' + rand_elem(parts) + '"')
     return true;
-  }),
+  }, false),
   'uclast': new Meme(function (message) {
     var parts = remove_short(message.content.split(/\s+/));
     if (!parts.length) {
@@ -155,21 +170,21 @@ var memes = {
     }
     send_delay(message.channel, uclast(rand_elem(parts).toLowerCase()));
     return true;
-  }),
+  }, false),
   'sss': new Meme(function (message) {
     if (message.content.match(/^ssss+$/)) {
       send_delay(message.channel, message.content + 's');
       return true;
     }
     return false;
-  }),
+  }, false),
   'question': new Meme(function (message) {
     if (message.content.match(/\?$/)) {
       send_delay(message.channel, '...?');
       return true;
     }
     return false;
-  })
+  }, false)
 };
 
 function remove_short(arr)
@@ -204,8 +219,8 @@ async function bot_meme(message)
   for (var key in memes) {
     var meme = memes[key];
     if (meme.ready()) {
+      log("Meme: " + key);
       if (meme.callback(message)) {
-        log("Meme: " + key);
         memed = true;
         break;
       }
@@ -219,7 +234,7 @@ async function bot_meme(message)
   return memed;
 }
 
-function send_delay(channel, str, min = 1000, max = 3000)
+function send_delay(channel, str, min = 1000, max = 10000)
 {
   setTimeout(function () {
     channel.send(str);
@@ -302,6 +317,11 @@ function rand_elem(arr)
 function rand_caps(str)
 {
   return str.split('').map(letter => rand_cap(letter)).join('');
+}
+
+async function markov(str) {
+  const { stdout, stderr } = await exec('py test.py');
+  return stdout;
 }
 
 function rand_cap(letter)

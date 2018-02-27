@@ -99,16 +99,33 @@ var commands = {
     }
     str += "```";
     message.channel.send(str);
+  },
+  '!translate.*': async function (message) {
+    var msg = message.content.trim().replace(/^!translate\s*/i, '');
+    var sql = "SELECT * FROM `memes`";
+    var results = await query(sql);
+    var str = msg;
+    for (var i = 0; i < results.length; i++) {
+      var re = new RegExp(results[i].regex, 'gi');
+      var matches = msg.match(re);
+      str = str.replace(re, results[i].content);
+    }
+    if (str.length) {
+      message.channel.send(str);
+    }
   }
 };
 
 function bot_command(message)
 {
-  var cmd = message.content.trim();
-  if (cmd in commands) {
-    commands[cmd](message);
-    log("Command: " + message);
-    return true;
+  var msg = message.content.trim();
+  for (var command in commands) {
+    var re = new RegExp(command, 'i');
+    if (msg.match(re)) {
+      commands[command](message);
+      log("Command: " + message);
+      return true;
+    }
   }
   return false;
 }

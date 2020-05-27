@@ -60,19 +60,16 @@ var commands = {
   },
   '!markov': async function (message) {
     var str = await markov();
-    message.channel.send(str);
+    message.channel.send(strip_notifies(str));
   },
   '!bitcoin': function (message) {
-    var url = 'https://api.coinmarketcap.com/v1/ticker/bitcoin/';
+    var url = 'https://api.coindesk.com/v1/bpi/currentprice.json';
     got(url)
       .then(response => {
         var data = JSON.parse(response.body)[0];
         message.channel.send(
           data.symbol
-          + "\t$" + data.price_usd
-          + "\t(1h " + add_sign(data.percent_change_1h) + "%)"
-          + "\t(24h " + add_sign(data.percent_change_24h) + "%)"
-          + "\t(7d " + add_sign(data.percent_change_7d) + "%)"
+          + "\t$" + data.bpi.USD.rate_float
         );
       })
       .catch(error => {
@@ -254,8 +251,12 @@ async function bot_meme(message)
 function send_delay(channel, str, min = 1000, max = 10000)
 {
   setTimeout(function () {
-    channel.send(str);
+    channel.send(strip_notifies(str));
   }, rand_int(min, max));
+}
+
+function strip_notifies(str) {
+  return str.replace(/@(\S)/g, '@ $1')
 }
 
 function rand_int(min, max) {

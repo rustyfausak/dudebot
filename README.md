@@ -25,7 +25,9 @@ See https://discordapp.com/developers/applications/me/
 `py markov.py`
 
 ## Daemon
+```
 pm2 list
 pm2 show dudebot
 pm2 logs dudebot
+```
 

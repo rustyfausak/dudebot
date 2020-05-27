@@ -254,7 +254,7 @@ async function bot_meme(message)
 function send_delay(channel, str, min = 1000, max = 10000)
 {
   setTimeout(function () {
-    channel.send(str);
+    channel.send(str.replace(/@(\S)/g, '@ $1'));
   }, rand_int(min, max));
 }
 

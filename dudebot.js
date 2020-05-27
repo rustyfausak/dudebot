@@ -66,10 +66,8 @@ var commands = {
     var url = 'https://api.coindesk.com/v1/bpi/currentprice.json';
     got(url)
       .then(response => {
-        var data = JSON.parse(response.body)[0];
         message.channel.send(
-          data.symbol
-          + "\t$" + data.bpi.USD.rate_float
+          "BTC\t$" + response.bpi.USD.rate_float
         );
       })
       .catch(error => {

@@ -112,4 +112,19 @@ module.exports = class DudebotDB {
 		);
 		return results[0].id;
 	}
+
+	async numMessages(channel, num_seconds = 240)
+	{
+		var results = await this.query(
+			"SELECT `id` FROM `channels` WHERE `uuid` = " + this.e(channel.id)
+		);
+		var channel_id = results[0].id;
+		var results = await this.query(
+			"SELECT COUNT(*) AS `num` FROM `messages` "
+			+ "WHERE `channel_id` = " + this.e(channel_id) + " "
+			+ "AND `at` > (NOW() - INTERVAL " + num_seconds + " SECOND)"
+		);
+		return results[0].num;
+	}
+
 };

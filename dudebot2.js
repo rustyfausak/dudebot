@@ -16,6 +16,10 @@ var db = new DudebotDB(
 	config.db_port
 );
 var command_manager = new DudebotCommandManager(db, config);
+var chime = {
+	at: null,
+	freq_sec: 300
+};
 
 client.on('ready', () => {
 	console.log("Logged in as '" + client.user.tag + "'.");
@@ -44,7 +48,7 @@ client.on('message', message => {
 
 	if (message.channel.type != 'text') {
 		// This message is not in a normal text channel
-		//return;
+		return;
 	}
 
 	// Print message to console
@@ -57,6 +61,16 @@ client.on('message', message => {
 
 	// Save the message to the database
 	db.saveMessage(message);
+
+	// Chime in
+	if (!chime.at || chime.at < new Date(Date.now() - (chime.freq_sec * 1000))) {
+		db.numMessages(message.channel).then((num) => {
+			if (num >= 5) {
+				command_manager.command_markov(message);
+				chime.at = new Date(Date.now());
+			}
+		});
+	}
 });
 
 client.login(config.discord_bot_token);

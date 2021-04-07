@@ -5,15 +5,19 @@ import time
 
 cache_lifetime_minutes = 60
 
-if len(sys.argv) != 2:
-	print("Usage: markov.py <channel_id>");
+if len(sys.argv) < 2:
+	print("Usage: markov.py <channel_id> (<nocache flag>)");
 	exit(0)
 
 channel_id = sys.argv[1]
 
+skipcache = False
+if len(sys.argv) == 3:
+	skipcache = True
+
 # Check the cache file
 cachefile = "corpora/" + channel_id + "-cache.json"
-if os.path.exists(cachefile) and os.path.getmtime(cachefile) > time.time() - cache_lifetime_minutes * 60:
+if not skipcache and os.path.exists(cachefile) and os.path.getmtime(cachefile) > time.time() - cache_lifetime_minutes * 60:
 	# Load cache file
 	with open(cachefile) as f:
 		cache = f.read()
@@ -39,10 +43,10 @@ else:
 	f.write(model_json)
 	f.close()
 
-	# Try five times for a randomly-generated sentence
-	for i in range(5):
-		s = text_model.make_sentence()
-		if (not s):
-			continue
-		print(s)
-		exit(0)
+# Try five times for a randomly-generated sentence
+for i in range(5):
+	s = text_model.make_sentence()
+	if (not s):
+		continue
+	print(s)
+	exit(0)

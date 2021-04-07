@@ -4,9 +4,12 @@
   "description": "A Discord bot for #dudechat.",
   "main": "dudebot.js",
   "dependencies": {
-    "discord.js": "^11.2.1",
+    "@discordjs/opus": "^0.5.0",
+    "discord.js": "^12",
     "got": "^7.1.0",
-    "mysql": "^2.14.1"
+    "mysql": "^2.14.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   },
   "devDependencies": {},
   "repository": {

@@ -2,3 +2,5 @@ dudebot.sublime-workspace
 node_modules
 config.json
 corpus.txt
+vendor
+*.txt

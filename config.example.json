@@ -1,7 +1,9 @@
 {
-  "discord_bot_token": "",
-  "db_host": "",
-  "db_username": "",
-  "db_password": "",
-  "db_database": ""
+	"coinmarketcap_api_key": "",
+	"discord_bot_token": "",
+	"db_host": "",
+	"db_username": "",
+	"db_password": "",
+	"db_database": "",
+	"db_port": ""
 }

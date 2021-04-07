@@ -5,6 +5,7 @@ discord bot for dudechat
  - node
  - python
  - php
+ - mysql
 
 ## install
 `npm install`

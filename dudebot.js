@@ -1,3 +1,6 @@
+// this file is deprecated, use dudebot2.js
+process.exit()
+
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const Discord = require('discord.js');

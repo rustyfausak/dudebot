@@ -28,7 +28,7 @@ module.exports = class DudebotCommandManager {
 		for (var command in this.commands) {
 			var re = new RegExp(command + "\\b", 'i');
 			if (content.match(re)) {
-				console.log("Command: " + command);
+				console.log("[BOT] Command: " + command);
 				this.commands[command].call(this, message);
 				return true;
 			}
@@ -148,7 +148,7 @@ module.exports = class DudebotCommandManager {
 			this.coins_cache.response = response;
 			this.coins_cache.at = new Date(Date.now());
 		}).catch((err) => {
-			console.log("API call error: ", err.message);
+			console.log("[BOT] API call error: ", err.message);
 			this.coins_cache.at = new Date(Date.now());
 		});
 	}

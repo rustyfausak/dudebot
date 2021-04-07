@@ -1,4 +1,5 @@
 {
+	"chime_channel_uuid": "",
 	"coinmarketcap_api_key": "",
 	"discord_bot_token": "",
 	"db_host": "",

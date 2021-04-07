@@ -22,7 +22,7 @@ var chime = {
 };
 
 client.on('ready', () => {
-	console.log("Logged in as '" + client.user.tag + "'.");
+	console.log("[BOT] Logged in as '" + client.user.tag + "'.");
 
 	// Initialize interval for send queue
 	client.setInterval(() => {
@@ -31,7 +31,7 @@ client.on('ready', () => {
 				return;
 			}
 			client.channels.fetch(row.channel_uuid).then(async channel => {
-				console.log("Sending message from queue.");
+				console.log("[BOT] Sending message from queue.");
 				await channel.send(row.content);
 				db.setSendQueueSent(row.id);
 			});
@@ -63,9 +63,10 @@ client.on('message', message => {
 	db.saveMessage(message);
 
 	// Chime in
-	if (!chime.at || chime.at < new Date(Date.now() - (chime.freq_sec * 1000))) {
+	if (message.channel.id == config.chime_channel_uuid && (!chime.at || chime.at < new Date(Date.now() - (chime.freq_sec * 1000)))) {
 		db.numMessages(message.channel).then((num) => {
 			if (num >= 5) {
+				console.log("[BOT] Chime!")
 				command_manager.command_markov(message);
 				chime.at = new Date(Date.now());
 			}

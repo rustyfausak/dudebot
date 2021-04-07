@@ -12,7 +12,7 @@ module.exports = class DudebotHelpers {
 	}
 
 	static outputMessage(message) {
-		console.log('(' + this.getChannelName(message) + ') ' + message.author.username + ': ' + message.content);
+		console.log('[MSG] #' + this.getChannelName(message) + ' <' + message.author.username + '> ' + message.content);
 	}
 
 	static getChannelName(message) {

@@ -4,3 +4,4 @@ config.json
 corpus.txt
 vendor
 *.txt
+*.json

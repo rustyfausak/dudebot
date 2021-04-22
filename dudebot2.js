@@ -18,7 +18,8 @@ var db = new DudebotDB(
 var command_manager = new DudebotCommandManager(db, config);
 var chime = {
 	at: null,
-	freq_sec: 300
+	freq_sec: 3000,
+	req_recent_msgs: 8
 };
 
 client.on('ready', () => {
@@ -65,8 +66,9 @@ client.on('message', message => {
 	// Chime in
 	if (message.channel.id == config.chime_channel_uuid && (!chime.at || chime.at < new Date(Date.now() - (chime.freq_sec * 1000)))) {
 		db.numMessages(message.channel).then((num) => {
-			if (num >= 5) {
+			if (num >= chime.req_recent_msgs) {
 				console.log("[BOT] Chime!")
+				chime.at = new Date(Date.now());
 				command_manager.command_markov(message);
 				chime.at = new Date(Date.now());
 			}

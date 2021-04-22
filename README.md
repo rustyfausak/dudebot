@@ -2,9 +2,10 @@
 discord bot for dudechat
 
 ## requirements
- - node >= v8.5.0
+ - node
  - python
  - php
+ - mysql
 
 ## install
 `npm install`
@@ -22,12 +23,12 @@ See https://discordapp.com/developers/applications/me/
 `php generate-corpus.php`
 
 ### get markov sentence
-`py markov.py`
+`python markov.py`
 
 ## Daemon
 ```
 pm2 list
-pm2 show dudebot
-pm2 logs dudebot
+pm2 show dudebot2
+pm2 logs dudebot2
 ```
 
